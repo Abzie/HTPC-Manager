@@ -79,7 +79,7 @@ function dash_sonarr_calendar() {
 
 					});
 	}
-	});		
+	});
 
   $('#dash_sonarr_cal').fullCalendar('render')
 }
@@ -430,34 +430,38 @@ function loadRecentAlbumsPlex() {
     $('#albums-content-plex').parent().show()
   })
 }
-function loadCurrentPlex(){
-	  function CurrentPlexLoop(){
-  if (!$('#currentplex_table_body').length) return
-  $('#currentplex_table_body').empty()
-$.getJSON(WEBDIR + 'plex/NowPlaying', function(data) {
-	 $.each(data.playing_items, function(i, slot) {
-		 if ((slot.type) == 'movie'){
-		  $('#currentplex_table_body').append(
-		  $('<tr>').append(
-			  $('<td>').html(slot.user).attr('title', slot.user),
-			  $('<td>').html(slot.title).attr('title', slot.title),
-			  $('<td>').html(slot.state).attr('title', slot.state)	
-		)
-	 )}
-	 else{
-		  $('#currentplex_table_body').append(
-		  $('<tr>').append(
-			  $('<td>').html(slot.user).attr('title', slot.user),
-			  $('<td>').html(slot.show + ' - S' + slot.season + 'E' + slot.episode + ' - ' + slot.title).attr('title', slot.show),
-			  $('<td>').html(slot.state).attr('title', slot.state)		  
-		)
-	 )}
-	 }
-  )})
-  }
-  CurrentPlexLoop();
-  setInterval(CurrentPlexLoopLoop,10000);
+
+function loadCurrentPlex() {
+    function CurrentPlexLoop() {
+        if (!$('#currentplex_table_body').length) return
+
+        $.getJSON(WEBDIR + 'plex/NowPlaying', function(data) {
+          $('#currentplex_table_body').empty()
+            $.each(data.playing_items, function(i, slot) {
+                if ((slot.type) == 'movie') {
+                    $('#currentplex_table_body').append(
+                        $('<tr>').append(
+                            $('<td>').html(slot.user).attr('title', slot.user),
+                            $('<td>').html(slot.title).attr('title', slot.title),
+                            $('<td>').html(slot.state).attr('title', slot.state)
+                        )
+                    )
+                } else {
+                    $('#currentplex_table_body').append(
+                        $('<tr>').append(
+                            $('<td>').html(slot.user).attr('title', slot.user),
+                            $('<td>').html(slot.show + ' - S' + slot.season + 'E' + slot.episode + ' - ' + slot.title).attr('title', slot.show),
+                            $('<td>').html(slot.state).attr('title', slot.state)
+                        )
+                    )
+                }
+            })
+        })
+    }
+    CurrentPlexLoop();
+    setInterval(CurrentPlexLoop, 10000);
 }
+
 function loadDownloadHistory() {
   if (!$('#downloads_table_body').length) return
   $.getJSON(WEBDIR + 'sabnzbd/GetHistory?limit=5', function(data) {
@@ -477,59 +481,75 @@ function loadDownloadHistory() {
 }
 
 function loadActiveDownloads() {
-  function ActiveDownloadsLoop(){
-  if (!$('#activedownloads_table_body').length) return
-  $('#activedownloads_table_body').empty()
-  $.getJSON(WEBDIR + 'sabnzbd/GetStatus', function(data) {
-	  if(data.queue.status == 'Idle'){
-		  $('#dash_sabnzbd2').children('h3:first-child').empty().append(('<a href="sabnzbd/#active">Queue&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>' + 'Idle&nbsp;'))
-	  }
-	  if(data.queue.status == 'Paused'){
-		  $('#dash_sabnzbd2').children('h3:first-child').empty().append(('<a href="sabnzbd/#active">Queue&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>' + 'Paused:&nbsp;' + '<button onclick="nzb_resume_button()" class="btn" id="nzb_play_button"><i class="fa fa-play"></i></button>'))
-	  }
-	  	  if(data.queue.status == 'Downloading'){
-		  $('#dash_sabnzbd2').children('h3:first-child').empty().append(('<a href="sabnzbd/#active">Queue&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Speed:&nbsp;</a>' + data.queue.speed + 'B/Sec' + '<button onclick="nzb_pause_button()" class="btn" id="nzb_pause_button"><i class="fa fa-pause"></i></button>'))
-	  }
-		  $.each(data.queue.slots, function(i, slot) {
-		  $('#activedownloads_table_body').append(
-		  $('<tr>').append(
-			  $('<td>').html(slot.filename).attr('title', slot.filename),
-			  $('<td>').html(slot.sizeleft).attr('title', slot.sizeleft),
-			  $('<td>').html(slot.timeleft).attr('title', slot.timeleft),
-			  $('<td>').html('<button onclick="nzb_delete_button(\''+slot.nzo_id+'\')" class="btn" id="nzb_delete_button"><i class="fa fa-minus"></i></button>')
-		)
-  )})
-  })
-  }
-  ActiveDownloadsLoop();
-  setInterval(ActiveDownloadsLoop,1000);
+    if (!$('#activedownloads_table_body').length) return
+    function ActiveDownloadsLoop() {
+
+        $.getJSON(WEBDIR + 'sabnzbd/GetStatus', function(data) {
+            var b = ''
+            if (data.queue.status == 'Idle') {
+              //
+            } else if (data.queue.status == 'Paused') {
+              b = '<button onclick="nzb_resume_button()" class="btn btn-small" id="nzb_play_button"><i class="fa fa-play"></i></button>'
+
+
+             } else if (data.queue.status == 'Downloading') {
+             b = '<button onclick="nzb_pause_button()" class="btn btn-small" id="nzb_pause_button"><i class="fa fa-pause"></i></button>'
+            }
+
+             $('#dash_sabnzbd2').children('h3:first-child').html('<form action="" class="well form-inline disabled" id="add_nzb_form" method="post" name="add_nzb_form"> <a href="sabnzbd/#active"><i class="rg rg-lg rg-sabnzbd-c"></i></a> <input class="span2" id="sab_pause_for" placeholder="time" type="number" value="">' + b +'<input class="span2" id="nzb_get_speed" placeholder="Kb/s" type="text" value=""> <button class="btn btn-small" id="nzb_set_speed"><i class="fa fa-arrow-circle-down fa-fw"></i> Set speed</button></form>')
+            var pausetime = (data.pause_int != '0') ? ' ' + data.pause_int: ''
+
+            $('#nzb_get_speed').attr('placeholder', data.speedlimit)
+            $('#sab_pause_for').attr('placeholder', data.pause)
+            $('#activedownloads_table_body').html('')
+
+            $.each(data.queue.slots, function(i, slot) {
+                $('#activedownloads_table_body').append(
+                    $('<tr>').append(
+                        $('<td title="' + slot.filename +'">').html(slot.filename),
+                        $('<td title="' + slot.sizeleft +'">').html(slot.sizeleft),
+                        $('<td title="' + slot.timeleft +'">').html(slot.timeleft),
+                        $('<td>').html('<button onclick="nzb_delete_button(\'' + slot.nzo_id +
+                            '\')" class="btn" id="nzb_delete_button"><i class="fa fa-minus"></i></button>')
+                    )
+                )
+
+            })
+        })
+    }
+    ActiveDownloadsLoop();
+    setInterval(ActiveDownloadsLoop, 10000);
 }
-function nzb_pause_button(){
-	var clickItem = $(this);
-        clickItem.button('loading');
-$.ajax({
-            url: WEBDIR + 'sabnzbd/TogglePause?mode=pause',
-            dataType: 'json',
-            type: 'get'
-        });
+
+function nzb_pause_button() {
+    var clickItem = $(this);
+    clickItem.button('loading');
+    $.ajax({
+        url: WEBDIR + 'sabnzbd/TogglePause?mode=pause',
+        dataType: 'json',
+        type: 'get'
+    });
 }
-function nzb_resume_button(){
-	var clickItem = $(this);
-        clickItem.button('loading');
-$.ajax({
-            url: WEBDIR + 'sabnzbd/TogglePause?mode=resume',
-            dataType: 'json',
-            type: 'get'
-        });
+
+function nzb_resume_button() {
+    var clickItem = $(this);
+    clickItem.button('loading');
+    $.ajax({
+        url: WEBDIR + 'sabnzbd/TogglePause?mode=resume',
+        dataType: 'json',
+        type: 'get'
+    });
 }
-function nzb_delete_button(id){
-if (confirm('Are you sure?')) {
+
+function nzb_delete_button(id) {
+    if (confirm('Are you sure?')) {
         $.ajax({
             url: WEBDIR + 'sabnzbd/DeleteNzb?id=' + id,
             type: 'get',
             dataType: 'json',
-});
-}
+        });
+    }
+    ActiveDownloadsLoop();
 }
 
 function loadNZBGetDownloadHistory() {
